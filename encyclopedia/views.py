@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from markdown2 import markdown
 
 from . import util
 
@@ -10,7 +11,13 @@ def index(request):
 
 
 def entry(request, entry):
-    return render(request, "encyclopedia/entry.html", {
-        "entry_title": entry,
-        "body": "body text goes here"
-    })
+    entry_body = util.get_entry(entry)
+    if entry_body is None:
+        return render(request, "encyclopedia/error.html", {
+            "message": "404 Error: No entry found."
+        })
+    else:
+        return render(request, "encyclopedia/entry.html", {
+            "entry_title": entry,
+            "entry_body": markdown(entry_body)
+        })
