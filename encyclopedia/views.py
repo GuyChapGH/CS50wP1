@@ -10,7 +10,11 @@ from . import util
 
 class NewPageForm(forms.Form):
     entry_title = forms.CharField(label="Title")
-    entry_body = forms.CharField(widget=forms.Textarea)
+    entry_body = forms.CharField(label="Markup Text", widget=forms.Textarea)
+
+
+class EditPageForm(forms.Form):
+    entry_body = forms.CharField(label="Markup Text", widget=forms.Textarea)
 
 
 # index page shows the list of encyclopedia entries
@@ -22,7 +26,7 @@ def index(request):
     })
 
 # entry page retrieves markdown text for entry and converts to HTML
-# before displaying if no matching entry is found an error 404 is displayed
+# before displaying. If no matching entry is found an error 404 is displayed
 
 
 def entry(request, entry):
@@ -55,6 +59,15 @@ def search(request):
         return render(request, "encyclopedia/search_results.html", {
             "substring_entries": substring_entries
         })
+    else:
+        return HttpResponseRedirect(reverse('index'))
+
+
+# new_page returns a page with a Django form (defined in class statement at
+# top). Form includes a title and a textarea for markdown. This allows a
+# new entry to be added to the encyclopedia. If the
+# title exactly matches an existing title an error message is returned,
+# otherwise the new entry is saved to disk.
 
 
 def new_page(request):
@@ -77,4 +90,31 @@ def new_page(request):
     else:
         return render(request, "encyclopedia/new_page.html", {
             "form": NewPageForm()
+        })
+
+
+# edit page provides the existing markup text for an entry to be displayed in
+# a textarea of a Django form. The text can be edited and then saved using the
+# same title.
+
+
+def edit_page(request, entry):
+    if request.method == "POST":
+        form = EditPageForm(request.POST)
+        if form.is_valid():
+            entry_title = entry
+            entry_body = form.cleaned_data["entry_body"]
+            util.save_entry(entry_title, entry_body)
+            return HttpResponseRedirect(reverse('entry', args=(entry_title,)))
+        else:
+            return render(request, "encyclopedia/edit_page.html", {
+                "entry": entry,
+                "form": form
+            })
+    else:
+        # this code prepopulates the textarea with the initial value
+        form = EditPageForm(initial={'entry_body': util.get_entry(entry)})
+        return render(request, "encyclopedia/edit_page.html", {
+            "entry": entry,
+            "form": form
         })
