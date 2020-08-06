@@ -4,17 +4,19 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django import forms
 
+from random import randint
+
 
 from . import util
 
 
 class NewPageForm(forms.Form):
     entry_title = forms.CharField(label="Title")
-    entry_body = forms.CharField(label="Markup Text", widget=forms.Textarea)
+    entry_body = forms.CharField(label="", widget=forms.Textarea(attrs={"rows": 3, "cols": 20}))
 
 
 class EditPageForm(forms.Form):
-    entry_body = forms.CharField(label="Markup Text", widget=forms.Textarea)
+    entry_body = forms.CharField(label="", widget=forms.Textarea(attrs={"rows": 3, "cols": 20}))
 
 
 # index page shows the list of encyclopedia entries
@@ -118,3 +120,15 @@ def edit_page(request, entry):
             "entry": entry,
             "form": form
         })
+
+
+# Random page enables the user to jump to a randomly selected entry in the
+# encyclopedia. randint(a,b) provides a random integer between and including
+# the values a and b.
+
+
+def random(request):
+    entries = util.list_entries()
+    index = randint(0, len(entries))
+    entry = entries[index]
+    return HttpResponseRedirect(reverse('entry', args=(entry,)))
