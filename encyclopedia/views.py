@@ -129,6 +129,6 @@ def edit_page(request, entry):
 
 def random(request):
     entries = util.list_entries()
-    index = randint(0, len(entries))
+    index = randint(0, (len(entries)-1))
     entry = entries[index]
     return HttpResponseRedirect(reverse('entry', args=(entry,)))
