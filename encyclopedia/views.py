@@ -12,11 +12,11 @@ from . import util
 
 class NewPageForm(forms.Form):
     entry_title = forms.CharField(label="Title")
-    entry_body = forms.CharField(label="", widget=forms.Textarea(attrs={"rows": 3, "cols": 20}))
+    entry_body = forms.CharField(label="", widget=forms.Textarea)
 
 
 class EditPageForm(forms.Form):
-    entry_body = forms.CharField(label="", widget=forms.Textarea(attrs={"rows": 3, "cols": 20}))
+    entry_body = forms.CharField(label="", widget=forms.Textarea)
 
 
 # index page shows the list of encyclopedia entries
